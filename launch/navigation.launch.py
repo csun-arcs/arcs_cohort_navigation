@@ -73,7 +73,7 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_filter_node',
         output='screen',
-        parameters=[ekf_params, {'use_sim_time': LaunchConfiguration('use_sim_time')}]
+        parameters=[ekf_params]
     )
 
     # SLAM bringup launch
