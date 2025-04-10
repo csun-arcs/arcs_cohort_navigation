@@ -7,7 +7,7 @@ twist_mux:
         timeout: 0.5
         priority: 10
       keyboard:
-        topic: diff_cont/cmd_vel_unstamped_keyboard
+        topic: diff_cont/cmd_vel_unstamped
         timeout: 0.5
         priority: 20
       joystick:
