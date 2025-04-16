@@ -29,31 +29,31 @@ def generate_launch_description():
     )
 
     # Declare launch arguments
-    declare_use_sim_time_cmd = DeclareLaunchArgument(
+    declare_use_sim_time_arg = DeclareLaunchArgument(
         "use_sim_time", default_value="true", description="Use simulation time"
     )
-    declare_ekf_params_cmd = DeclareLaunchArgument(
+    declare_ekf_params_arg = DeclareLaunchArgument(
         "ekf_params",
         default_value=default_ekf_params,
         description="Path to the params file to load for the robot_localization package EKF node",
     )
-    declare_slam_params_cmd = DeclareLaunchArgument(
+    declare_slam_params_arg = DeclareLaunchArgument(
         "slam_params",
         default_value=default_slam_params,
         description="Path to the params file to load for the slam_toolbox package SLAM node",
     )
-    declare_nav2_params_cmd = DeclareLaunchArgument(
+    declare_nav2_params_arg = DeclareLaunchArgument(
         "nav2_params",
         default_value=default_nav2_params,
         description="Path to the params file to load for the nav2_bringup package Nav2 bringup launcher",
     )
-    declare_use_ekf_cmd = DeclareLaunchArgument(
+    declare_use_ekf_arg = DeclareLaunchArgument(
         "use_ekf", default_value="true", description="Launch robot_localization package EKF node"
     )
-    declare_use_slam_cmd = DeclareLaunchArgument(
+    declare_use_slam_arg = DeclareLaunchArgument(
         "use_slam", default_value="true", description="Launch slam_toolbox package SLAM node"
     )
-    declare_use_nav2_cmd = DeclareLaunchArgument(
+    declare_use_nav2_arg = DeclareLaunchArgument(
         "use_nav2", default_value="true", description="Launch nav2_bringup package Nav2 bringup launcher"
     )
 
@@ -109,14 +109,17 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        declare_use_sim_time_cmd,
-        declare_ekf_params_cmd,
-        declare_slam_params_cmd,
-        declare_nav2_params_cmd,
-        declare_use_ekf_cmd,
-        declare_use_slam_cmd,
-        declare_use_nav2_cmd,
+        # Declare arguments
+        declare_use_sim_time_arg,
+        declare_ekf_params_arg,
+        declare_slam_params_arg,
+        declare_nav2_params_arg,
+        declare_use_ekf_arg,
+        declare_use_slam_arg,
+        declare_use_nav2_arg,
+        # Nodes
         ekf_node,
+        # Launchers
         slam_bringup_launch,
         nav2_bringup_launch,
     ])
