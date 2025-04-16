@@ -11,7 +11,7 @@ def generate_launch_description():
     # Package and file paths
     pkg_nav = 'arcs_cohort_navigation'
 
-    # Paths to default files
+    # Defaults
     default_ekf_params = os.path.join(
         get_package_share_directory(pkg_nav),
         'config',
@@ -27,6 +27,7 @@ def generate_launch_description():
         'config',
         'nav2_params.yaml'
     )
+    default_log_level = "INFO"
 
     # Declare launch arguments
     declare_use_sim_time_arg = DeclareLaunchArgument(
@@ -56,6 +57,11 @@ def generate_launch_description():
     declare_use_nav2_arg = DeclareLaunchArgument(
         "use_nav2", default_value="true", description="Launch nav2_bringup package Nav2 bringup launcher."
     )
+    declare_log_level_arg = DeclareLaunchArgument(
+        "log_level",
+        default_value=default_log_level,
+        description="Set the log level for nodes."
+    )
 
     # Launch configurations
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -65,6 +71,7 @@ def generate_launch_description():
     use_ekf = LaunchConfiguration("use_ekf")
     use_slam = LaunchConfiguration("use_slam")
     use_nav2 = LaunchConfiguration("use_nav2")
+    log_level = LaunchConfiguration("log_level")
 
     # robot_localization EKF node
     ekf_node = Node(
@@ -74,6 +81,7 @@ def generate_launch_description():
         name='ekf_filter_node',
         output='screen',
         parameters=[ekf_params]
+        arguments=["--ros-args", "--log-level", log_level],
     )
 
     # SLAM bringup launch
@@ -117,6 +125,7 @@ def generate_launch_description():
         declare_use_ekf_arg,
         declare_use_slam_arg,
         declare_use_nav2_arg,
+        declare_log_level_arg,
         # Nodes
         ekf_node,
         # Launchers
