@@ -36,7 +36,7 @@ amcl:
     z_max: 0.05
     z_rand: 0.5
     z_short: 0.05
-    scan_topic: /scan
+    scan_topic: scan/merged/scan
 
 bt_navigator:
   ros__parameters:
@@ -221,7 +221,7 @@ local_costmap:
         z_voxels: 16
         max_obstacle_height: 2.0
         mark_threshold: 0
-        observation_sources: scan
+        observation_sources: scan/merged/scan
         scan:
           # A relative topic will be appended to the parent of the local_costmap namespace.
           # For example:
@@ -229,7 +229,7 @@ local_costmap:
           #   * User chosen topic is `scan`.
           #   * Topic will be remapped to `/tb4/scan` without `local_costmap`.
           #   * Use global topic `/scan` if you do not wish the node namespace to apply
-          topic: /scan
+          topic: scan/merged/scan
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -261,7 +261,7 @@ global_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: scan
+        observation_sources: scan/merged/scan
         scan:
           # A relative topic will be appended to the parent of the global_costmap namespace.
           # For example:
@@ -269,7 +269,7 @@ global_costmap:
           #   * User chosen topic is `scan`.
           #   * Topic will be remapped to `/tb4/scan` without `global_costmap`.
           #   * Use global topic `/scan` if you do not wish the node namespace to apply
-          topic: /scan
+          topic: scan/merged/scan
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -405,7 +405,7 @@ collision_monitor:
     observation_sources: ["scan"]
     scan:
       type: "scan"
-      topic: /scan
+      topic: scan/merged/scan
       min_height: 0.15
       max_height: 2.0
       enabled: True
@@ -474,6 +474,6 @@ loopback_simulator:
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
     map_frame_id: "map"
-    scan_frame_id: "base_scan"  # tb4_loopback_simulator.launch.py remaps to 'rplidar_link'
+    scan_frame_id: "base_link"
     update_duration: 0.02
     enable_stamped_cmd_vel: false
