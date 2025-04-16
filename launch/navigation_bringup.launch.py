@@ -80,7 +80,7 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_filter_node',
         output='screen',
-        parameters=[ekf_params]
+        parameters=[ekf_params],
         arguments=["--ros-args", "--log-level", log_level],
     )
 
