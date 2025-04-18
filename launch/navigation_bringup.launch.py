@@ -7,25 +7,20 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
     # Package and file paths
-    pkg_nav = 'arcs_cohort_navigation'
+    pkg_nav = "arcs_cohort_navigation"
 
     # Defaults
     default_ekf_params = os.path.join(
-        get_package_share_directory(pkg_nav),
-        'config',
-        'ekf_params.yaml'
+        get_package_share_directory(pkg_nav), "config", "ekf_params.yaml"
     )
     default_slam_params = os.path.join(
-        get_package_share_directory(pkg_nav),
-        'config',
-        'slam_params.yaml'
+        get_package_share_directory(pkg_nav), "config", "slam_params.yaml"
     )
     default_nav2_params = os.path.join(
-        get_package_share_directory(pkg_nav),
-        'config',
-        'nav2_params.yaml'
+        get_package_share_directory(pkg_nav), "config", "nav2_params.yaml"
     )
     default_log_level = "INFO"
 
@@ -49,18 +44,24 @@ def generate_launch_description():
         description="Path to the params file to load for the nav2_bringup package Nav2 bringup launcher.",
     )
     declare_use_ekf_arg = DeclareLaunchArgument(
-        "use_ekf", default_value="true", description="Launch robot_localization package EKF node."
+        "use_ekf",
+        default_value="true",
+        description="Launch robot_localization package EKF node.",
     )
     declare_use_slam_arg = DeclareLaunchArgument(
-        "use_slam", default_value="true", description="Launch slam_toolbox package SLAM node."
+        "use_slam",
+        default_value="true",
+        description="Launch slam_toolbox package SLAM node.",
     )
     declare_use_nav2_arg = DeclareLaunchArgument(
-        "use_nav2", default_value="true", description="Launch nav2_bringup package Nav2 bringup launcher."
+        "use_nav2",
+        default_value="true",
+        description="Launch nav2_bringup package Nav2 bringup launcher.",
     )
     declare_log_level_arg = DeclareLaunchArgument(
         "log_level",
         default_value=default_log_level,
-        description="Set the log level for nodes."
+        description="Set the log level for nodes.",
     )
 
     # Launch configurations
@@ -76,59 +77,65 @@ def generate_launch_description():
     # robot_localization EKF node
     ekf_node = Node(
         condition=IfCondition(use_ekf),
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
-        output='screen',
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        output="screen",
         parameters=[ekf_params],
         arguments=["--ros-args", "--log-level", log_level],
     )
 
     # SLAM bringup launch
     slam_bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(
-                get_package_share_directory('slam_toolbox'),
-                'launch',
-                'online_async_launch.py'
-            )
-        ]),
+        PythonLaunchDescriptionSource(
+            [
+                os.path.join(
+                    get_package_share_directory("slam_toolbox"),
+                    "launch",
+                    "online_async_launch.py",
+                )
+            ]
+        ),
         launch_arguments={
-            'slam_params_file': slam_params,
-            'use_sim_time': LaunchConfiguration('use_sim_time')
+            "slam_params_file": slam_params,
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
         }.items(),
         condition=IfCondition(use_slam),
     )
 
     # Nav2 bringup launch
     nav2_bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(
-                get_package_share_directory('nav2_bringup'),
-                'launch',
-                'bringup_launch.py'
-            )
-        ]),
+        PythonLaunchDescriptionSource(
+            [
+                os.path.join(
+                    get_package_share_directory(pkg_nav),
+                    "launch",
+                    "custom_nav2.launch.py",  # Replace with the actual name of your custom launch file
+                )
+            ]
+        ),
         launch_arguments={
-            'params_file': nav2_params,
-            'use_sim_time': LaunchConfiguration('use_sim_time')
+            "params_file": nav2_params,
+            "use_sim_time": LaunchConfiguration("use_sim_time"),
         }.items(),
         condition=IfCondition(use_nav2),
     )
 
-    return LaunchDescription([
-        # Declare arguments
-        declare_use_sim_time_arg,
-        declare_ekf_params_arg,
-        declare_slam_params_arg,
-        declare_nav2_params_arg,
-        declare_use_ekf_arg,
-        declare_use_slam_arg,
-        declare_use_nav2_arg,
-        declare_log_level_arg,
-        # Nodes
-        ekf_node,
-        # Launchers
-        slam_bringup_launch,
-        nav2_bringup_launch,
-    ])
+    return LaunchDescription(
+        [
+            # Declare arguments
+            declare_use_sim_time_arg,
+            declare_ekf_params_arg,
+            declare_slam_params_arg,
+            declare_nav2_params_arg,
+            declare_use_ekf_arg,
+            declare_use_slam_arg,
+            declare_use_nav2_arg,
+            declare_log_level_arg,
+            # Nodes
+            ekf_node,
+            # Launchers
+            slam_bringup_launch,
+            nav2_bringup_launch,
+        ]
+    )

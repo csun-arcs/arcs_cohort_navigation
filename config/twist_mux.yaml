@@ -1,16 +1,17 @@
 twist_mux:
   ros__parameters:
-    use_stamped: false
+    use_stamped: true
+    use_sim_time: true
     topics:
       navigation:
-        topic: cmd_vel_nav
+        topic: cmd_vel
         timeout: 0.5
         priority: 10
       keyboard:
-        topic: diff_cont/cmd_vel_unstamped
+        topic: diff_cont/cmd_vel
         timeout: 0.5
         priority: 20
       joystick:
-        topic: diff_cont/cmd_vel_unstamped
+        topic: diff_cont/cmd_vel
         timeout: 0.5
         priority: 30
