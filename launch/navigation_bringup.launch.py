@@ -41,7 +41,7 @@ def generate_launch_description():
         default_value=default_slam_params,
         description="Path to the params file to load for the slam_toolbox package SLAM node.",
     )
-    decalare_use_dwb_params_arg = DeclareLaunchArgument(
+    declare_use_dwb_params_arg = DeclareLaunchArgument(
         "use_dwb", default_value="false", description="Use DWB controller plugin"
     )
     declare_nav2_params_arg = DeclareLaunchArgument(
@@ -144,7 +144,7 @@ def generate_launch_description():
             declare_use_sim_time_arg,
             declare_ekf_params_arg,
             declare_slam_params_arg,
-            decalare_use_dwb_params_arg,
+            declare_use_dwb_params_arg,
             declare_nav2_params_arg,
             declare_use_ekf_arg,
             declare_use_slam_arg,
