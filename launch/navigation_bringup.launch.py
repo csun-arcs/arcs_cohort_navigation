@@ -105,7 +105,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "slam_params_file": slam_params,
-            "use_sim_time": LaunchConfiguration("use_sim_time"),
+            "use_sim_time": use_sim_time,
         }.items(),
         condition=IfCondition(use_slam),
     )
