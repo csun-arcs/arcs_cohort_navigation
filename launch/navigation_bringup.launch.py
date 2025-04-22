@@ -117,7 +117,7 @@ def generate_launch_description():
                 os.path.join(
                     get_package_share_directory(pkg_nav),
                     "launch",
-                    "custom_nav2.launch.py",  # Replace with the actual name of your custom launch file
+                    "custom_nav2.launch.py",
                 )
             ]
         ),
