@@ -1,4 +1,4 @@
-slam_toolbox:
+${ARCS_COHORT_NAMESPACE}slam_toolbox:
   ros__parameters:
     # Plugin params
     solver_plugin: solver_plugins::CeresSolver
@@ -12,7 +12,7 @@ slam_toolbox:
     odom_frame: ${ARCS_COHORT_PREFIX}odom
     map_frame: ${ARCS_COHORT_PREFIX}map
     base_frame: ${ARCS_COHORT_PREFIX}base_footprint
-    scan_topic: ${ARCS_COHORT_NAMESPACE}scan/merged/scan
+    scan_topic: scan/merged/scan
     use_map_saver: true
     mode: mapping #localization
 
