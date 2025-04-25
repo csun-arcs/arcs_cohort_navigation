@@ -5,7 +5,7 @@ from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, Exec
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import Node
+from launch_ros.actions import Node, PushRosNamespace
 
 
 def generate_launch_description():
@@ -36,7 +36,7 @@ def generate_launch_description():
 
     # Declare launch arguments
     declare_namespace_arg = DeclareLaunchArgument(
-        "ns",
+        "namespace",
         default_value="",
         description="Namespace under which to bring up nodes, topics, etc.",
     )
@@ -119,7 +119,7 @@ def generate_launch_description():
     )
 
     # Launch configurations
-    namespace = LaunchConfiguration("ns")
+    namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
     use_sim_time = LaunchConfiguration("use_sim_time")
     use_ekf = LaunchConfiguration("use_ekf")
@@ -135,6 +135,9 @@ def generate_launch_description():
     nav2_params_template = LaunchConfiguration("nav2_params_template")
     nav2_params = LaunchConfiguration("nav2_params")
     log_level = LaunchConfiguration("log_level")
+
+    # Use PushRosNamespace to apply the namespace to all nodes below
+    push_namespace = PushRosNamespace(namespace=namespace)
 
     # Build the prefix with underscore.
     # This expression will evaluate to, for example, "cohort1_" if
@@ -231,6 +234,10 @@ def generate_launch_description():
         output="screen",
         parameters=[ekf_params],
         arguments=["--ros-args", "--log-level", log_level],
+        remappings=[
+            ("/tf", "tf"),
+            ("/tf_static", "tf_static"),
+        ],
     )
 
     # SLAM bringup launch
@@ -238,13 +245,14 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             [
                 os.path.join(
-                    get_package_share_directory("slam_toolbox"),
+                    get_package_share_directory(nav_pkg),
                     "launch",
-                    "online_async_launch.py",
+                    "slam.launch.py",
                 )
             ]
         ),
         launch_arguments={
+            "namespace": "",
             "slam_params_file": slam_params,
             "use_sim_time": use_sim_time,
         }.items(),
@@ -263,6 +271,7 @@ def generate_launch_description():
             ]
         ),
         launch_arguments={
+            "namespace": "",
             "params_file": nav2_params,
             "use_sim_time": use_sim_time,
         }.items(),
@@ -274,13 +283,6 @@ def generate_launch_description():
             # Declare arguments
             declare_namespace_arg,
             declare_prefix_arg,
-            declare_use_sim_time_arg,
-            declare_use_ekf_arg,
-            declare_use_slam_arg,
-            declare_use_nav2_arg,
-            declare_use_ekf_params_template_arg,
-            declare_use_slam_params_template_arg,
-            declare_use_nav2_params_template_arg,
             declare_ekf_params_template_arg,
             declare_ekf_params_arg,
             declare_slam_params_template_arg,
@@ -288,10 +290,19 @@ def generate_launch_description():
             declare_nav2_params_template_arg,
             declare_nav2_params_arg,
             declare_log_level_arg,
+            declare_use_sim_time_arg,
+            declare_use_ekf_arg,
+            declare_use_slam_arg,
+            declare_use_nav2_arg,
+            declare_use_ekf_params_template_arg,
+            declare_use_slam_params_template_arg,
+            declare_use_nav2_params_template_arg,
             # Param file generators
             ekf_params_generator,
             slam_params_generator,
             nav2_params_generator,
+            # Namespace
+            push_namespace,
             # Nodes
             ekf_node,
             # Launchers
