@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, ExecuteProcess
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, ExecuteProcess, LogInfo, GroupAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
@@ -12,6 +12,7 @@ def generate_launch_description():
     # Package and file paths
     nav_pkg = "arcs_cohort_navigation"
     nav_pkg_share_dir = get_package_share_directory(nav_pkg)
+
 
     # Defaults
     default_ekf_params_file_template = os.path.join(
@@ -37,7 +38,7 @@ def generate_launch_description():
     # Declare launch arguments
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
-        default_value="",
+        # default_value="",
         description="Namespace under which to bring up nodes, topics, etc.",
     )
     declare_prefix_arg = DeclareLaunchArgument(
@@ -48,39 +49,6 @@ def generate_launch_description():
             "E.g. 'base_link' will become 'cohort1_base_link' if prefix "
             "is set to 'cohort1'."
         ),
-    )
-    declare_use_sim_time_arg = DeclareLaunchArgument(
-        "use_sim_time", default_value="true", description="Use simulation time."
-    )
-    declare_use_ekf_arg = DeclareLaunchArgument(
-        "use_ekf",
-        default_value="true",
-        description="Launch robot_localization package EKF node.",
-    )
-    declare_use_slam_arg = DeclareLaunchArgument(
-        "use_slam",
-        default_value="true",
-        description="Launch slam_toolbox package SLAM node.",
-    )
-    declare_use_nav2_arg = DeclareLaunchArgument(
-        "use_nav2",
-        default_value="true",
-        description="Launch nav2_bringup package Nav2 bringup launcher.",
-    )
-    declare_use_ekf_params_template_arg = DeclareLaunchArgument(
-        "use_ekf_params_template",
-        default_value="true",
-        description="If true, generate the EKF params from the specified EKF params template.",
-    )
-    declare_use_slam_params_template_arg = DeclareLaunchArgument(
-        "use_slam_params_template",
-        default_value="true",
-        description="If true, generate the SLAM params from the specified SLAM params template.",
-    )
-    declare_use_nav2_params_template_arg = DeclareLaunchArgument(
-        "use_nav2_params_template",
-        default_value="true",
-        description="If true, generate the Nav2 params from the specified Nav2 params template.",
     )
     declare_ekf_params_template_arg = DeclareLaunchArgument(
         "ekf_params_template",
@@ -117,17 +85,43 @@ def generate_launch_description():
         default_value=default_log_level,
         description="Set the log level for nodes.",
     )
+    declare_use_sim_time_arg = DeclareLaunchArgument(
+        "use_sim_time", default_value="true", description="Use simulation time."
+    )
+    declare_use_ekf_arg = DeclareLaunchArgument(
+        "use_ekf",
+        default_value="true",
+        description="Launch robot_localization package EKF node.",
+    )
+    declare_use_slam_arg = DeclareLaunchArgument(
+        "use_slam",
+        default_value="true",
+        description="Launch slam_toolbox package SLAM node.",
+    )
+    declare_use_nav2_arg = DeclareLaunchArgument(
+        "use_nav2",
+        default_value="true",
+        description="Launch nav2_bringup package Nav2 bringup launcher.",
+    )
+    declare_use_ekf_params_template_arg = DeclareLaunchArgument(
+        "use_ekf_params_template",
+        default_value="true",
+        description="If true, generate the EKF params from the specified EKF params template.",
+    )
+    declare_use_slam_params_template_arg = DeclareLaunchArgument(
+        "use_slam_params_template",
+        default_value="true",
+        description="If true, generate the SLAM params from the specified SLAM params template.",
+    )
+    declare_use_nav2_params_template_arg = DeclareLaunchArgument(
+        "use_nav2_params_template",
+        default_value="true",
+        description="If true, generate the Nav2 params from the specified Nav2 params template.",
+    )
 
     # Launch configurations
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
-    use_sim_time = LaunchConfiguration("use_sim_time")
-    use_ekf = LaunchConfiguration("use_ekf")
-    use_slam = LaunchConfiguration("use_slam")
-    use_nav2 = LaunchConfiguration("use_nav2")
-    use_ekf_params_template = LaunchConfiguration("use_ekf_params_template")
-    use_slam_params_template = LaunchConfiguration("use_slam_params_template")
-    use_nav2_params_template = LaunchConfiguration("use_nav2_params_template")
     ekf_params_template = LaunchConfiguration("ekf_params_template")
     ekf_params = LaunchConfiguration("ekf_params")
     slam_params_template = LaunchConfiguration("slam_params_template")
@@ -135,6 +129,15 @@ def generate_launch_description():
     nav2_params_template = LaunchConfiguration("nav2_params_template")
     nav2_params = LaunchConfiguration("nav2_params")
     log_level = LaunchConfiguration("log_level")
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    use_ekf = LaunchConfiguration("use_ekf")
+    use_slam = LaunchConfiguration("use_slam")
+    use_nav2 = LaunchConfiguration("use_nav2")
+    use_ekf_params_template = LaunchConfiguration("use_ekf_params_template")
+    use_slam_params_template = LaunchConfiguration("use_slam_params_template")
+    use_nav2_params_template = LaunchConfiguration("use_nav2_params_template")
+
+    log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix])
 
     # Use PushRosNamespace to apply the namespace to all nodes below
     push_namespace = PushRosNamespace(namespace=namespace)
@@ -226,19 +229,22 @@ def generate_launch_description():
     )
 
     # robot_localization EKF node
-    ekf_node = Node(
-        condition=IfCondition(use_ekf),
-        package="robot_localization",
-        executable="ekf_node",
-        name="ekf_filter_node",
-        output="screen",
-        parameters=[ekf_params],
-        arguments=["--ros-args", "--log-level", log_level],
-        remappings=[
-            ("/tf", "tf"),
-            ("/tf_static", "tf_static"),
-        ],
-    )
+    ekf_node = GroupAction([
+        # push_namespace,
+        Node(
+            condition=IfCondition(use_ekf),
+            package="robot_localization",
+            executable="ekf_node",
+            name="ekf_filter_node",
+            output="screen",
+            parameters=[ekf_params],
+            arguments=["--ros-args", "--log-level", log_level],
+            remappings=[
+                ("/tf", "tf"),
+                ("/tf_static", "tf_static"),
+            ],
+        ),
+    ])
 
     # SLAM bringup launch
     slam_bringup_launch = IncludeLaunchDescription(
@@ -252,7 +258,7 @@ def generate_launch_description():
             ]
         ),
         launch_arguments={
-            "namespace": "",
+            "namespace": namespace,
             "slam_params_file": slam_params,
             "use_sim_time": use_sim_time,
         }.items(),
@@ -271,7 +277,7 @@ def generate_launch_description():
             ]
         ),
         launch_arguments={
-            "namespace": "",
+            "namespace": namespace,
             "params_file": nav2_params,
             "use_sim_time": use_sim_time,
         }.items(),
@@ -297,12 +303,12 @@ def generate_launch_description():
             declare_use_ekf_params_template_arg,
             declare_use_slam_params_template_arg,
             declare_use_nav2_params_template_arg,
+            # Print
+            log_info,
             # Param file generators
             ekf_params_generator,
             slam_params_generator,
             nav2_params_generator,
-            # Namespace
-            push_namespace,
             # Nodes
             ekf_node,
             # Launchers
