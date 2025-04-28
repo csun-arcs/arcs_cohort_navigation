@@ -304,7 +304,7 @@ def generate_launch_description():
             declare_use_ekf_params_template_arg,
             declare_use_slam_params_template_arg,
             declare_use_nav2_params_template_arg,
-            # Print
+            # Log info
             log_info,
             # Param file generators
             ekf_params_generator,
