@@ -51,6 +51,7 @@ def generate_launch_description():
         "waypoint_follower",
     ]
 
+    # Log info
     log_info = LogInfo(msg=['Nav2 launching with namespace: ', namespace])
 
     # Use PushRosNamespace to apply the namespace to all nodes below
