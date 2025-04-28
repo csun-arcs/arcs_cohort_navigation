@@ -17,11 +17,11 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable, LogInfo
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import LoadComposableNodes, SetParameter
-from launch_ros.actions import Node
+from launch_ros.actions import Node, PushRosNamespace
 from launch_ros.descriptions import ComposableNode, ParameterFile
 from nav2_common.launch import RewrittenYaml
 
@@ -50,6 +50,12 @@ def generate_launch_description():
         "bt_navigator",
         "waypoint_follower",
     ]
+
+    # Log info
+    log_info = LogInfo(msg=['Nav2 launching with namespace: ', namespace])
+
+    # Use PushRosNamespace to apply the namespace to all nodes below
+    push_namespace = PushRosNamespace(namespace=namespace)
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.
     # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
@@ -123,6 +129,7 @@ def generate_launch_description():
     load_nodes = GroupAction(
         condition=IfCondition(PythonExpression(["not ", use_composition])),
         actions=[
+            push_namespace,
             SetParameter("use_sim_time", use_sim_time),
             Node(
                 package="nav2_controller",
@@ -236,6 +243,7 @@ def generate_launch_description():
     load_composable_nodes = GroupAction(
         condition=IfCondition(use_composition),
         actions=[
+            push_namespace,
             SetParameter("use_sim_time", use_sim_time),
             LoadComposableNodes(
                 target_container=container_name_full,
@@ -331,6 +339,7 @@ def generate_launch_description():
     ld.add_action(declare_container_name_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
+    ld.add_action(log_info)
     # Add the actions to launch all of the navigation nodes
     ld.add_action(load_nodes)
     ld.add_action(load_composable_nodes)
