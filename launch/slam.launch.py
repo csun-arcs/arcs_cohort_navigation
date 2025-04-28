@@ -20,6 +20,11 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     slam_params_file = LaunchConfiguration('slam_params_file')
 
+    declare_namespace_arg = DeclareLaunchArgument(
+        "namespace",
+        default_value="",
+        description="Namespace under which to bring up nodes, topics, etc.",
+    )
     declare_autostart_cmd = DeclareLaunchArgument(
         'autostart', default_value='true',
         description='Automatically startup the slamtoolbox. '
@@ -37,6 +42,12 @@ def generate_launch_description():
                                    'config', 'mapper_params_online_sync.yaml'),
         description='Full path to the ROS2 parameters file to use for the slam_toolbox node')
 
+    # Launch configurations
+    namespace = LaunchConfiguration("namespace")
+
+    # Log info
+    log_info = LogInfo(msg=['SLAM launching with namespace: ', namespace])
+
     start_sync_slam_toolbox_node = LifecycleNode(
         parameters=[
           slam_params_file,
@@ -49,7 +60,7 @@ def generate_launch_description():
         executable='sync_slam_toolbox_node',
         name='slam_toolbox',
         output='screen',
-        namespace='',
+        namespace=namespace,
         remappings=[
             ("/tf", "tf"),
             ("/tf_static", "tf_static"),
@@ -84,10 +95,12 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    ld.add_action(declare_namespace_arg)
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_use_lifecycle_manager)
     ld.add_action(declare_use_sim_time_argument)
     ld.add_action(declare_slam_params_file_cmd)
+    ld.add_action(log_info)
     ld.add_action(start_sync_slam_toolbox_node)
     ld.add_action(configure_event)
     ld.add_action(activate_event)
