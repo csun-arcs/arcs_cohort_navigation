@@ -137,6 +137,7 @@ def generate_launch_description():
     use_slam_params_template = LaunchConfiguration("use_slam_params_template")
     use_nav2_params_template = LaunchConfiguration("use_nav2_params_template")
 
+    # Log info
     log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix])
 
     # Use PushRosNamespace to apply the namespace to all nodes below
