@@ -38,7 +38,7 @@ def generate_launch_description():
     # Declare launch arguments
     declare_namespace_arg = DeclareLaunchArgument(
         "namespace",
-        # default_value="",
+        default_value="",
         description="Namespace under which to bring up nodes, topics, etc.",
     )
     declare_prefix_arg = DeclareLaunchArgument(
@@ -230,7 +230,7 @@ def generate_launch_description():
 
     # robot_localization EKF node
     ekf_node = GroupAction([
-        # push_namespace,
+        push_namespace,
         Node(
             condition=IfCondition(use_ekf),
             package="robot_localization",
@@ -272,7 +272,7 @@ def generate_launch_description():
                 os.path.join(
                     get_package_share_directory(nav_pkg),
                     "launch",
-                    "custom_nav2.launch.py",
+                    "nav2.launch.py",
                 )
             ]
         ),
