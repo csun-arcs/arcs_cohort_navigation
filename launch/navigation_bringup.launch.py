@@ -6,6 +6,7 @@ from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, PushRosNamespace
+from nav2_common.launch import ReplaceString
 
 
 def generate_launch_description():
@@ -13,25 +14,15 @@ def generate_launch_description():
     nav_pkg = "arcs_cohort_navigation"
     nav_pkg_share_dir = get_package_share_directory(nav_pkg)
 
-
     # Defaults
-    default_ekf_params_file_template = os.path.join(
-        nav_pkg_share_dir, "config", "ekf_params.yaml.template"
-    )
     default_ekf_params_file = os.path.join(
         nav_pkg_share_dir, "config", "ekf_params.yaml"
-    )
-    default_slam_params_file_template = os.path.join(
-        nav_pkg_share_dir, "config", "slam_params.yaml.template"
     )
     default_slam_params_file = os.path.join(
         nav_pkg_share_dir, "config", "slam_params.yaml"
     )
-    default_nav2_params_file_template = os.path.join(
-        nav_pkg_share_dir, "config", "nav2_mppi_stamped_params.yaml.template"
-    )
     default_nav2_params_file = os.path.join(
-        nav_pkg_share_dir, "config", "nav2_params.yaml"
+        nav_pkg_share_dir, "config", "nav2_mppi_stamped_params.yaml"
     )
     default_log_level = "INFO"
 
@@ -50,30 +41,15 @@ def generate_launch_description():
             "is set to 'cohort1'."
         ),
     )
-    declare_ekf_params_template_arg = DeclareLaunchArgument(
-        "ekf_params_template",
-        default_value=default_ekf_params_file_template,
-        description="Path to the params file template from which to generate the params file for the robot_localization package EKF node.",
-    )
     declare_ekf_params_arg = DeclareLaunchArgument(
         "ekf_params",
         default_value=default_ekf_params_file,
         description="Path to the params file to load for the robot_localization package EKF node.",
     )
-    declare_slam_params_template_arg = DeclareLaunchArgument(
-        "slam_params_template",
-        default_value=default_slam_params_file_template,
-        description="Path to the params file template from which to generate the params file for the slam_toolbox package SLAM node.",
-    )
     declare_slam_params_arg = DeclareLaunchArgument(
         "slam_params",
         default_value=default_slam_params_file,
         description="Path to the params file to load for the slam_toolbox package SLAM node.",
-    )
-    declare_nav2_params_template_arg = DeclareLaunchArgument(
-        "nav2_params_template",
-        default_value=default_nav2_params_file_template,
-        description="Path to the params file template from which to generate the params file for the nav2_bringup package Nav2 bringup launcher.",
     )
     declare_nav2_params_arg = DeclareLaunchArgument(
         "nav2_params",
@@ -103,39 +79,18 @@ def generate_launch_description():
         default_value="true",
         description="Launch nav2_bringup package Nav2 bringup launcher.",
     )
-    declare_use_ekf_params_template_arg = DeclareLaunchArgument(
-        "use_ekf_params_template",
-        default_value="true",
-        description="If true, generate the EKF params from the specified EKF params template.",
-    )
-    declare_use_slam_params_template_arg = DeclareLaunchArgument(
-        "use_slam_params_template",
-        default_value="true",
-        description="If true, generate the SLAM params from the specified SLAM params template.",
-    )
-    declare_use_nav2_params_template_arg = DeclareLaunchArgument(
-        "use_nav2_params_template",
-        default_value="true",
-        description="If true, generate the Nav2 params from the specified Nav2 params template.",
-    )
 
     # Launch configurations
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
-    ekf_params_template = LaunchConfiguration("ekf_params_template")
     ekf_params = LaunchConfiguration("ekf_params")
-    slam_params_template = LaunchConfiguration("slam_params_template")
     slam_params = LaunchConfiguration("slam_params")
-    nav2_params_template = LaunchConfiguration("nav2_params_template")
     nav2_params = LaunchConfiguration("nav2_params")
     log_level = LaunchConfiguration("log_level")
     use_sim_time = LaunchConfiguration("use_sim_time")
     use_ekf = LaunchConfiguration("use_ekf")
     use_slam = LaunchConfiguration("use_slam")
     use_nav2 = LaunchConfiguration("use_nav2")
-    use_ekf_params_template = LaunchConfiguration("use_ekf_params_template")
-    use_slam_params_template = LaunchConfiguration("use_slam_params_template")
-    use_nav2_params_template = LaunchConfiguration("use_nav2_params_template")
 
     # Log info
     log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix])
@@ -157,76 +112,47 @@ def generate_launch_description():
         ["'", namespace, "/' if '", namespace, "' else ''"]
     )
 
-    # Generate EKF params from template.
-    # The prefix will be substituted into the template in
-    # place of the ARCS_COHORT_PREFIX variable and the namespace will be
-    # substituted in place of ARCS_COHORT_NAMESPACE.
-    ekf_params_generator = ExecuteProcess(
-        condition=IfCondition(use_ekf_params_template),
-        cmd=[
-            [
-                "ARCS_COHORT_PREFIX='",
-                prefix_,
-                "' ",
-                "ARCS_COHORT_NAMESPACE='",
-                namespace_,
-                "' ",
-                "envsubst < ",
-                ekf_params_template,
-                " > ",
-                ekf_params,
-            ]
-        ],
-        shell=True,
-        output="screen",
+    # Build the namespace with leading and trailing slashes.
+    # This expression will evaluate to, for example, "/cohort1/" if
+    # the namespace is "cohort1", or to an empty string if namespace is empty.
+    _namespace_ = PythonExpression(
+        ["'/", namespace, "/' if '", namespace, "' else ''"]
     )
 
-    # Generate SLAM params from template.
-    # The prefix will be substituted into the template in
-    # place of the ARCS_COHORT_PREFIX variable and the namespace will be
-    # substituted in place of ARCS_COHORT_NAMESPACE.
-    slam_params_generator = ExecuteProcess(
-        condition=IfCondition(use_slam_params_template),
-        cmd=[
-            [
-                "ARCS_COHORT_PREFIX='",
-                prefix_,
-                "' ",
-                "ARCS_COHORT_NAMESPACE='",
-                namespace_,
-                "' ",
-                "envsubst < ",
-                slam_params_template,
-                " > ",
-                slam_params,
-            ]
-        ],
-        shell=True,
-        output="screen",
+    # Perform substitutions of <NAMESPACE> and <PREFIX> in EKF params file
+    substituted_ekf_params = ReplaceString(
+        source_file=ekf_params,
+        replacements={
+            '<NAMESPACE>': namespace,
+            '<NAMESPACE_>': namespace_,
+            '<_NAMESPACE_>': _namespace_,
+            '<PREFIX>': prefix,
+            '<PREFIX_>': prefix_,
+        }
     )
 
-    # Generate Nav2 params from template.
-    # The prefix will be substituted into the template in
-    # place of the ARCS_COHORT_PREFIX variable and the namespace will be
-    # substituted in place of ARCS_COHORT_NAMESPACE.
-    nav2_params_generator = ExecuteProcess(
-        condition=IfCondition(use_nav2_params_template),
-        cmd=[
-            [
-                "ARCS_COHORT_PREFIX='",
-                prefix_,
-                "' ",
-                "ARCS_COHORT_NAMESPACE='",
-                namespace_,
-                "' ",
-                "envsubst < ",
-                nav2_params_template,
-                " > ",
-                nav2_params,
-            ]
-        ],
-        shell=True,
-        output="screen",
+    # Perform substitutions of <NAMESPACE> and <PREFIX> in SLAM params file
+    substituted_slam_params = ReplaceString(
+        source_file=slam_params,
+        replacements={
+            '<NAMESPACE>': namespace,
+            '<NAMESPACE_>': namespace_,
+            '<_NAMESPACE_>': _namespace_,
+            '<PREFIX>': prefix,
+            '<PREFIX_>': prefix_,
+        }
+    )
+
+    # Perform substitutions of <NAMESPACE> and <PREFIX> in SLAM params file
+    substituted_nav2_params = ReplaceString(
+        source_file=nav2_params,
+        replacements={
+            '<NAMESPACE>': namespace,
+            '<NAMESPACE_>': namespace_,
+            '<_NAMESPACE_>': _namespace_,
+            '<PREFIX>': prefix,
+            '<PREFIX_>': prefix_,
+        }
     )
 
     # robot_localization EKF node
@@ -238,7 +164,7 @@ def generate_launch_description():
             executable="ekf_node",
             name="ekf_filter_node",
             output="screen",
-            parameters=[ekf_params],
+            parameters=[substituted_ekf_params],
             arguments=["--ros-args", "--log-level", log_level],
             remappings=[
                 ("/tf", "tf"),
@@ -260,7 +186,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "namespace": namespace,
-            "slam_params_file": slam_params,
+            "slam_params_file": substituted_slam_params,
             "use_sim_time": use_sim_time,
         }.items(),
         condition=IfCondition(use_slam),
@@ -279,7 +205,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             "namespace": namespace,
-            "params_file": nav2_params,
+            "params_file": substituted_nav2_params,
             "use_sim_time": use_sim_time,
         }.items(),
         condition=IfCondition(use_nav2),
@@ -290,26 +216,16 @@ def generate_launch_description():
             # Declare arguments
             declare_namespace_arg,
             declare_prefix_arg,
-            declare_ekf_params_template_arg,
             declare_ekf_params_arg,
-            declare_slam_params_template_arg,
             declare_slam_params_arg,
-            declare_nav2_params_template_arg,
             declare_nav2_params_arg,
             declare_log_level_arg,
             declare_use_sim_time_arg,
             declare_use_ekf_arg,
             declare_use_slam_arg,
             declare_use_nav2_arg,
-            declare_use_ekf_params_template_arg,
-            declare_use_slam_params_template_arg,
-            declare_use_nav2_params_template_arg,
             # Log info
             log_info,
-            # Param file generators
-            ekf_params_generator,
-            slam_params_generator,
-            nav2_params_generator,
             # Nodes
             ekf_node,
             # Launchers

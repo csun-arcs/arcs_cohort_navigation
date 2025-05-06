@@ -46,7 +46,7 @@ def generate_launch_description():
     namespace = LaunchConfiguration("namespace")
 
     # Log info
-    log_info = LogInfo(msg=['SLAM launching with namespace: ', namespace])
+    log_info = LogInfo(msg=['SLAM launching with namespace: ', namespace, ', slam_params_file: ', slam_params_file])
 
     start_sync_slam_toolbox_node = LifecycleNode(
         parameters=[

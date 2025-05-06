@@ -5,12 +5,12 @@ amcl:
     alpha3: 0.2
     alpha4: 0.2
     alpha5: 0.2
-    base_frame_id: "base_footprint"
+    base_frame_id: <PREFIX_>base_footprint
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
     beam_skip_threshold: 0.3
     do_beamskip: false
-    global_frame_id: "map"
+    global_frame_id: <PREFIX_>map
     lambda_short: 0.1
     laser_likelihood_max_dist: 2.0
     laser_max_range: 100.0
@@ -19,7 +19,7 @@ amcl:
     max_beams: 60
     max_particles: 2000
     min_particles: 500
-    odom_frame_id: "odom"
+    odom_frame_id: <PREFIX_>odom
     pf_err: 0.05
     pf_z: 0.99
     recovery_alpha_fast: 0.0
@@ -40,8 +40,8 @@ amcl:
 
 bt_navigator:
   ros__parameters:
-    global_frame: map
-    robot_base_frame: base_link
+    global_frame: <PREFIX_>map
+    robot_base_frame: <PREFIX_>base_link
     odom_topic: odom
     bt_loop_duration: 10
     default_server_timeout: 20
@@ -207,8 +207,8 @@ local_costmap:
     ros__parameters:
       update_frequency: 5.0
       publish_frequency: 2.0
-      global_frame: odom
-      robot_base_frame: base_link
+      global_frame: <PREFIX_>odom
+      robot_base_frame: <PREFIX_>base_link
       rolling_window: true
       width: 3
       height: 3
@@ -246,7 +246,7 @@ local_costmap:
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
         # pointcloud:
-        #   topic: "camera/left_camera/points"
+        #   topic: camera/left_camera/points
         #   data_type: "PointCloud2"
 
       static_layer:
@@ -259,8 +259,8 @@ global_costmap:
     ros__parameters:
       update_frequency: 1.0
       publish_frequency: 1.0
-      global_frame: map
-      robot_base_frame: base_link
+      global_frame: <PREFIX_>map
+      robot_base_frame: <PREFIX_>base_link
       robot_radius: 0.3
       resolution: 0.05
       track_unknown_space: true
@@ -286,7 +286,7 @@ global_costmap:
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
         # pointcloud:
-        #   topic: "camera/left_camera/points"
+        #   topic: camera/left_camera/points
         #   data_type: "PointCloud2"
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -333,10 +333,10 @@ smoother_server:
 
 behavior_server:
   ros__parameters:
-    local_costmap_topic: /local_costmap/costmap_raw
-    global_costmap_topic: /global_costmap/costmap_raw
-    local_footprint_topic: /local_costmap/published_footprint
-    global_footprint_topic: /global_costmap/published_footprint
+    local_costmap_topic: local_costmap/costmap_raw
+    global_costmap_topic: global_costmap/costmap_raw
+    local_footprint_topic: local_costmap/published_footprint
+    global_footprint_topic: global_costmap/published_footprint
     cycle_frequency: 10.0
     behavior_plugins:
       ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
@@ -350,9 +350,9 @@ behavior_server:
       plugin: "nav2_behaviors::Wait"
     assisted_teleop:
       plugin: "nav2_behaviors::AssistedTeleop"
-    local_frame: odom
-    global_frame: map
-    robot_base_frame: base_link
+    local_frame: <PREFIX_>odom
+    global_frame: <PREFIX_>map
+    robot_base_frame: <PREFIX_>base_link
     transform_tolerance: 0.1
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
@@ -388,12 +388,12 @@ velocity_smoother:
 
 collision_monitor:
   ros__parameters:
-    base_frame_id: "base_footprint"
-    odom_frame_id: "odom"
-    cmd_vel_in_topic: /cmd_vel_smoothed
-    cmd_vel_out_topic: /cmd_vel
+    base_frame_id: <PREFIX_>base_footprint
+    odom_frame_id: <PREFIX_>odom
+    cmd_vel_in_topic: cmd_vel_smoothed
+    cmd_vel_out_topic: cmd_vel
     enable_stamped_cmd_vel: true
-    state_topic: /collision_monitor_state
+    state_topic: collision_monitor_state
     transform_tolerance: 0.2
     source_timeout: 1.0
     base_shift_correction: True
@@ -404,7 +404,7 @@ collision_monitor:
     FootprintApproach:
       type: "polygon"
       action_type: "approach"
-      footprint_topic: /local_costmap/published_footprint
+      footprint_topic: local_costmap/published_footprint
       time_before_collision: 1.2
       simulation_time_step: 0.1
       min_points: 6
@@ -419,16 +419,16 @@ collision_monitor:
       enabled: True
     # pointcloud:
     #   type: "pointcloud"
-    #   topic: "camera/left_camera/points"
+    #   topic: camera/left_camera/points
     #   min_height: 0.15
     #   max_height: 2.0
     #   enabled: True
 
 loopback_simulator:
   ros__parameters:
-    base_frame_id: "base_footprint"
-    odom_frame_id: "odom"
-    map_frame_id: "map"
-    scan_frame_id: "base_link"
+    base_frame_id: <PREFIX_>base_footprint
+    odom_frame_id: <PREFIX_>odom
+    map_frame_id: <PREFIX_>map
+    scan_frame_id: <PREFIX_>base_link
     update_duration: 0.02
     enable_stamped_cmd_vel: true
