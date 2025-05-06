@@ -52,7 +52,7 @@ def generate_launch_description():
     ]
 
     # Log info
-    log_info = LogInfo(msg=['Nav2 launching with namespace: ', namespace])
+    log_info = LogInfo(msg=['Nav2 launching with namespace: ', namespace, ', params_file: ', params_file])
 
     # Use PushRosNamespace to apply the namespace to all nodes below
     push_namespace = PushRosNamespace(namespace=namespace)
