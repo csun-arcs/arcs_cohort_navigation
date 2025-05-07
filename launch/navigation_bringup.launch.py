@@ -173,6 +173,21 @@ def generate_launch_description():
         ),
     ])
 
+    # Nav2 cmd_vel stamper launch
+    nav2_teleop_stamper_node = GroupAction([
+        push_namespace,
+        Node(
+            condition=IfCondition(use_nav2),
+            package="twist_stamper",
+            executable="twist_stamper",
+            name="twist_stamper",
+            remappings=[
+                ('cmd_vel_in', 'cmd_vel_nav'),
+                ('cmd_vel_out', 'diff_cont/cmd_vel'),
+            ],
+        ),
+    ])
+
     # SLAM bringup launch
     slam_bringup_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -228,6 +243,7 @@ def generate_launch_description():
             log_info,
             # Nodes
             ekf_node,
+            nav2_teleop_stamper_node,
             # Launchers
             slam_bringup_launch,
             nav2_bringup_launch,
