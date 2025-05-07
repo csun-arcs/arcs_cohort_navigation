@@ -185,6 +185,7 @@ def generate_launch_description():
                 ('cmd_vel_in', 'cmd_vel_nav'),
                 ('cmd_vel_out', 'diff_cont/cmd_vel'),
             ],
+            parameters=[{"use_sim_time": use_sim_time}]
         ),
     ])
 
