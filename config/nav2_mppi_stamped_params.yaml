@@ -227,7 +227,7 @@ local_costmap:
         combination_method: 1
         observation_sources: scan
         scan:
-          topic: scan/merged/scan
+          topic: <SCAN_TOPIC>
           clearing: True
           marking: True
           data_type: "LaserScan"
@@ -249,7 +249,7 @@ local_costmap:
         mark_threshold: 0
         observation_sources: pointcloud
         pointcloud:
-          topic: camera/points/filtered/base
+          topic: <POINTCLOUD_TOPIC>
           data_type: "PointCloud2"
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -277,7 +277,7 @@ global_costmap:
         enabled: True
         observation_sources: scan
         scan:
-          topic: scan/merged/scan
+          topic: <SCAN_TOPIC>
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -299,7 +299,7 @@ global_costmap:
         mark_threshold: 0
         observation_sources: pointcloud
         pointcloud:
-          topic: camera/points/filtered/base
+          topic: <POINTCLOUD_TOPIC>
           data_type: "PointCloud2"
       stvl_layer:
         plugin: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"
@@ -320,7 +320,7 @@ global_costmap:
         observation_sources: pointcloud
         pointcloud:
           data_type: PointCloud2
-          topic: <_NAMESPACE_>camera/points/filtered/base
+          topic: <_NAMESPACE_><POINTCLOUD_TOPIC>
           marking: true
           clearing: true
           obstacle_range: 3.0
@@ -460,13 +460,13 @@ collision_monitor:
     observation_sources: ["scan", "pointcloud"]
     scan:
       type: "scan"
-      topic: scan/merged/scan
+      topic: <SCAN_TOPIC>
       min_height: 0.15
       max_height: 2.0
       enabled: True
     pointcloud:
       type: "pointcloud"
-      topic: camera/points/filtered/base
+      topic: <POINTCLOUD_TOPIC>
       min_height: 0.15
       max_height: 2.0
       enabled: True

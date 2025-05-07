@@ -15,6 +15,8 @@ def generate_launch_description():
     nav_pkg_share_dir = get_package_share_directory(nav_pkg)
 
     # Defaults
+    default_scan_topic = "scan/merged/scan"
+    default_pointcloud_topic = "camera/points/filtered/base"
     default_ekf_params_file = os.path.join(
         nav_pkg_share_dir, "config", "ekf_params.yaml"
     )
@@ -40,6 +42,16 @@ def generate_launch_description():
             "E.g. 'base_link' will become 'cohort1_base_link' if prefix "
             "is set to 'cohort1'."
         ),
+    )
+    declare_scan_topic_arg = DeclareLaunchArgument(
+        "scan_topic",
+        default_value=default_scan_topic,
+        description="Laser scan topic to be used by navigation.",
+    )
+    declare_pointcloud_topic_arg = DeclareLaunchArgument(
+        "pointcloud_topic",
+        default_value=default_pointcloud_topic,
+        description="Point cloud topic to be used by navigation.",
     )
     declare_ekf_params_arg = DeclareLaunchArgument(
         "ekf_params",
@@ -83,6 +95,8 @@ def generate_launch_description():
     # Launch configurations
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
+    scan_topic = LaunchConfiguration("scan_topic")
+    pointcloud_topic = LaunchConfiguration("pointcloud_topic")
     ekf_params = LaunchConfiguration("ekf_params")
     slam_params = LaunchConfiguration("slam_params")
     nav2_params = LaunchConfiguration("nav2_params")
@@ -128,6 +142,8 @@ def generate_launch_description():
             '<_NAMESPACE_>': _namespace_,
             '<PREFIX>': prefix,
             '<PREFIX_>': prefix_,
+            '<SCAN_TOPIC>': scan_topic,
+            '<POINTCLOUD_TOPIC>': pointcloud_topic,
         }
     )
 
@@ -140,6 +156,8 @@ def generate_launch_description():
             '<_NAMESPACE_>': _namespace_,
             '<PREFIX>': prefix,
             '<PREFIX_>': prefix_,
+            '<SCAN_TOPIC>': scan_topic,
+            '<POINTCLOUD_TOPIC>': pointcloud_topic,
         }
     )
 
@@ -152,6 +170,8 @@ def generate_launch_description():
             '<_NAMESPACE_>': _namespace_,
             '<PREFIX>': prefix,
             '<PREFIX_>': prefix_,
+            '<SCAN_TOPIC>': scan_topic,
+            '<POINTCLOUD_TOPIC>': pointcloud_topic,
         }
     )
 
@@ -216,6 +236,8 @@ def generate_launch_description():
             # Declare arguments
             declare_namespace_arg,
             declare_prefix_arg,
+            declare_scan_topic_arg,
+            declare_pointcloud_topic_arg,
             declare_ekf_params_arg,
             declare_slam_params_arg,
             declare_nav2_params_arg,
