@@ -12,7 +12,7 @@
     odom_frame: <PREFIX_>odom
     map_frame: <PREFIX_>map
     base_frame: <PREFIX_>base_footprint
-    scan_topic: scan/merged/scan
+    scan_topic: <SCAN_TOPIC>
     use_map_saver: true
     mode: mapping #localization
 
