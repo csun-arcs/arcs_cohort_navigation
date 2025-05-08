@@ -17,6 +17,12 @@ def generate_launch_description():
     # Defaults
     default_scan_topic = "scan/merged/scan"
     default_pointcloud_topic = "camera/points/filtered/base"
+    default_local_costmap_plugins = TextSubstitution(
+        text='["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]'
+    ),
+    default_global_costmap_plugins = TextSubstitution(
+        text='["static_layer", "obstacle_layer", "stvl_layer", "inflation_layer"]'
+    ),
     default_ekf_params_file = os.path.join(
         nav_pkg_share_dir, "config", "ekf_params.yaml"
     )
@@ -53,6 +59,16 @@ def generate_launch_description():
         default_value=default_pointcloud_topic,
         description="Point cloud topic to be used by navigation.",
     )
+    declare_local_costmap_plugins_arg = DeclareLaunchArgument(
+        "local_costmap_plugins",
+        default_value=default_local_costmap_plugins,
+        description="YAML-style list of plugins to use in the local costmap."
+    )
+    declare_global_costmap_plugins_arg = DeclareLaunchArgument(
+        "global_costmap_plugins",
+        default_value=default_global_costmap_plugins,
+        description="YAML-style list of plugins to use in the global costmap."
+    )
     declare_ekf_params_arg = DeclareLaunchArgument(
         "ekf_params",
         default_value=default_ekf_params_file,
@@ -67,21 +83,6 @@ def generate_launch_description():
         "nav2_params",
         default_value=default_nav2_params_file,
         description="Path to the params file to load for the nav2_bringup package Nav2 bringup launcher.",
-    )
-    declare_local_costmap_plugins_arg = DeclareLaunchArgument(
-        "local_costmap_plugins",
-        default_value=TextSubstitution(
-            text='["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]'
-        ),
-        description="YAML-style list of plugins to use in the local costmap."
-    )
-
-    declare_global_costmap_plugins_arg = DeclareLaunchArgument(
-        "global_costmap_plugins",
-        default_value=TextSubstitution(
-            text='["static_layer", "obstacle_layer", "stvl_layer", "inflation_layer"]'
-        ),
-        description="YAML-style list of plugins to use in the global costmap."
     )
     declare_log_level_arg = DeclareLaunchArgument(
         "log_level",
@@ -112,11 +113,11 @@ def generate_launch_description():
     prefix = LaunchConfiguration("prefix")
     scan_topic = LaunchConfiguration("scan_topic")
     pointcloud_topic = LaunchConfiguration("pointcloud_topic")
+    local_costmap_plugins = LaunchConfiguration("local_costmap_plugins")
+    global_costmap_plugins = LaunchConfiguration("global_costmap_plugins")
     ekf_params = LaunchConfiguration("ekf_params")
     slam_params = LaunchConfiguration("slam_params")
     nav2_params = LaunchConfiguration("nav2_params")
-    local_costmap_plugins = LaunchConfiguration("local_costmap_plugins")
-    global_costmap_plugins = LaunchConfiguration("global_costmap_plugins")
     log_level = LaunchConfiguration("log_level")
     use_sim_time = LaunchConfiguration("use_sim_time")
     use_ekf = LaunchConfiguration("use_ekf")
@@ -257,11 +258,11 @@ def generate_launch_description():
             declare_prefix_arg,
             declare_scan_topic_arg,
             declare_pointcloud_topic_arg,
+            declare_local_costmap_plugins_arg,
+            declare_global_costmap_plugins_arg,
             declare_ekf_params_arg,
             declare_slam_params_arg,
             declare_nav2_params_arg,
-            declare_local_costmap_plugins_arg,
-            declare_global_costmap_plugins_arg,
             declare_log_level_arg,
             declare_use_sim_time_arg,
             declare_use_ekf_arg,
