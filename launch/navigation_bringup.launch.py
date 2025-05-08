@@ -1,10 +1,10 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, ExecuteProcess, LogInfo, GroupAction
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, GroupAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution
 from launch_ros.actions import Node, PushRosNamespace
 from nav2_common.launch import ReplaceString
 
@@ -68,6 +68,21 @@ def generate_launch_description():
         default_value=default_nav2_params_file,
         description="Path to the params file to load for the nav2_bringup package Nav2 bringup launcher.",
     )
+    declare_local_costmap_plugins_arg = DeclareLaunchArgument(
+        "local_costmap_plugins",
+        default_value=TextSubstitution(
+            text='["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]'
+        ),
+        description="YAML-style list of plugins to use in the local costmap."
+    )
+
+    declare_global_costmap_plugins_arg = DeclareLaunchArgument(
+        "global_costmap_plugins",
+        default_value=TextSubstitution(
+            text='["static_layer", "obstacle_layer", "stvl_layer", "inflation_layer"]'
+        ),
+        description="YAML-style list of plugins to use in the global costmap."
+    )
     declare_log_level_arg = DeclareLaunchArgument(
         "log_level",
         default_value=default_log_level,
@@ -100,6 +115,8 @@ def generate_launch_description():
     ekf_params = LaunchConfiguration("ekf_params")
     slam_params = LaunchConfiguration("slam_params")
     nav2_params = LaunchConfiguration("nav2_params")
+    local_costmap_plugins = LaunchConfiguration("local_costmap_plugins")
+    global_costmap_plugins = LaunchConfiguration("global_costmap_plugins")
     log_level = LaunchConfiguration("log_level")
     use_sim_time = LaunchConfiguration("use_sim_time")
     use_ekf = LaunchConfiguration("use_ekf")
@@ -107,7 +124,7 @@ def generate_launch_description():
     use_nav2 = LaunchConfiguration("use_nav2")
 
     # Log info
-    log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix])
+    log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix, ', local_costmap_plugins: ', local_costmap_plugins])
 
     # Use PushRosNamespace to apply the namespace to all nodes below
     push_namespace = PushRosNamespace(namespace=namespace)
@@ -172,6 +189,8 @@ def generate_launch_description():
             '<PREFIX_>': prefix_,
             '<SCAN_TOPIC>': scan_topic,
             '<POINTCLOUD_TOPIC>': pointcloud_topic,
+            '<LOCAL_COSTMAP_PLUGINS>': local_costmap_plugins,
+            '<GLOBAL_COSTMAP_PLUGINS>': global_costmap_plugins,
         }
     )
 
@@ -241,6 +260,8 @@ def generate_launch_description():
             declare_ekf_params_arg,
             declare_slam_params_arg,
             declare_nav2_params_arg,
+            declare_local_costmap_plugins_arg,
+            declare_global_costmap_plugins_arg,
             declare_log_level_arg,
             declare_use_sim_time_arg,
             declare_use_ekf_arg,
