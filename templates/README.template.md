@@ -49,6 +49,7 @@ _This package does not contain any launch files._
 
 {% for maint in maintainers %}
 - {{ maint.name }}{% if maint.obfuscated_email %} ({{ maint.obfuscated_email }}){% endif %}
+
 {% endfor %}
 {% endif %}
 
