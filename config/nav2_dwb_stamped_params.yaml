@@ -52,7 +52,7 @@ bt_navigator:
   ros__parameters:
     global_frame: <PREFIX_>map
     robot_base_frame: <PREFIX_>base_link
-    odom_topic: odom
+    odom_topic: <ODOM_TOPIC>
     bt_loop_duration: 10
     default_server_timeout: 20
     wait_for_service_timeout: 1000
@@ -94,7 +94,7 @@ controller_server:
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
-    odom_topic: odom
+    odom_topic: <ODOM_TOPIC>
     enable_stamped_cmd_vel: true
     progress_checker_plugins: ["progress_checker"]
     goal_checker_plugins: ["goal_checker"]
@@ -387,7 +387,7 @@ velocity_smoother:
     min_velocity: [-0.5, 0.0, -2.0]
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
-    odom_topic: odom
+    odom_topic: <ODOM_TOPIC>
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
