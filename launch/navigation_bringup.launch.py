@@ -63,7 +63,7 @@ def generate_launch_description():
     declare_odom_topic_arg = DeclareLaunchArgument(
         "odom_topic",
         default_value=default_odom_topic,
-        description="Odom topic to be used by navigation.",
+        description="Odometry topic to be used by navigation.",
     )
     declare_local_costmap_plugins_arg = DeclareLaunchArgument(
         "local_costmap_plugins",
