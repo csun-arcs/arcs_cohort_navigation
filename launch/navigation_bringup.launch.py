@@ -17,6 +17,7 @@ def generate_launch_description():
     # Defaults
     default_scan_topic = "scan/merged/scan"
     default_pointcloud_topic = "camera/points/filtered/base"
+    default_odom_topic = "odometry/filtered"
     default_local_costmap_plugins = TextSubstitution(
         text='["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]'
     ),
@@ -58,6 +59,11 @@ def generate_launch_description():
         "pointcloud_topic",
         default_value=default_pointcloud_topic,
         description="Point cloud topic to be used by navigation.",
+    )
+    declare_odom_topic_arg = DeclareLaunchArgument(
+        "odom_topic",
+        default_value=default_odom_topic,
+        description="Odometry topic to be used by navigation.",
     )
     declare_local_costmap_plugins_arg = DeclareLaunchArgument(
         "local_costmap_plugins",
@@ -113,6 +119,7 @@ def generate_launch_description():
     prefix = LaunchConfiguration("prefix")
     scan_topic = LaunchConfiguration("scan_topic")
     pointcloud_topic = LaunchConfiguration("pointcloud_topic")
+    odom_topic = LaunchConfiguration("odom_topic")
     local_costmap_plugins = LaunchConfiguration("local_costmap_plugins")
     global_costmap_plugins = LaunchConfiguration("global_costmap_plugins")
     ekf_params = LaunchConfiguration("ekf_params")
@@ -190,6 +197,7 @@ def generate_launch_description():
             '<PREFIX_>': prefix_,
             '<SCAN_TOPIC>': scan_topic,
             '<POINTCLOUD_TOPIC>': pointcloud_topic,
+            '<ODOM_TOPIC>': odom_topic,
             '<LOCAL_COSTMAP_PLUGINS>': local_costmap_plugins,
             '<GLOBAL_COSTMAP_PLUGINS>': global_costmap_plugins,
         }
@@ -258,6 +266,7 @@ def generate_launch_description():
             declare_prefix_arg,
             declare_scan_topic_arg,
             declare_pointcloud_topic_arg,
+            declare_odom_topic_arg,
             declare_local_costmap_plugins_arg,
             declare_global_costmap_plugins_arg,
             declare_ekf_params_arg,
