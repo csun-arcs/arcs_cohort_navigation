@@ -1,10 +1,10 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, ExecuteProcess, LogInfo, GroupAction
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, LogInfo, GroupAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution
 from launch_ros.actions import Node, PushRosNamespace
 from nav2_common.launch import ReplaceString
 
@@ -15,6 +15,15 @@ def generate_launch_description():
     nav_pkg_share_dir = get_package_share_directory(nav_pkg)
 
     # Defaults
+    default_scan_topic = "scan/merged/scan"
+    default_pointcloud_topic = "camera/points/filtered/base"
+    default_odom_topic = "odometry/filtered"
+    default_local_costmap_plugins = TextSubstitution(
+        text='["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]'
+    ),
+    default_global_costmap_plugins = TextSubstitution(
+        text='["static_layer", "obstacle_layer", "stvl_layer", "inflation_layer"]'
+    ),
     default_ekf_params_file = os.path.join(
         nav_pkg_share_dir, "config", "ekf_params.yaml"
     )
@@ -40,6 +49,31 @@ def generate_launch_description():
             "E.g. 'base_link' will become 'cohort1_base_link' if prefix "
             "is set to 'cohort1'."
         ),
+    )
+    declare_scan_topic_arg = DeclareLaunchArgument(
+        "scan_topic",
+        default_value=default_scan_topic,
+        description="Laser scan topic to be used by navigation.",
+    )
+    declare_pointcloud_topic_arg = DeclareLaunchArgument(
+        "pointcloud_topic",
+        default_value=default_pointcloud_topic,
+        description="Point cloud topic to be used by navigation.",
+    )
+    declare_odom_topic_arg = DeclareLaunchArgument(
+        "odom_topic",
+        default_value=default_odom_topic,
+        description="Odometry topic to be used by navigation.",
+    )
+    declare_local_costmap_plugins_arg = DeclareLaunchArgument(
+        "local_costmap_plugins",
+        default_value=default_local_costmap_plugins,
+        description="YAML-style list of plugins to use in the local costmap."
+    )
+    declare_global_costmap_plugins_arg = DeclareLaunchArgument(
+        "global_costmap_plugins",
+        default_value=default_global_costmap_plugins,
+        description="YAML-style list of plugins to use in the global costmap."
     )
     declare_ekf_params_arg = DeclareLaunchArgument(
         "ekf_params",
@@ -83,6 +117,11 @@ def generate_launch_description():
     # Launch configurations
     namespace = LaunchConfiguration("namespace")
     prefix = LaunchConfiguration("prefix")
+    scan_topic = LaunchConfiguration("scan_topic")
+    pointcloud_topic = LaunchConfiguration("pointcloud_topic")
+    odom_topic = LaunchConfiguration("odom_topic")
+    local_costmap_plugins = LaunchConfiguration("local_costmap_plugins")
+    global_costmap_plugins = LaunchConfiguration("global_costmap_plugins")
     ekf_params = LaunchConfiguration("ekf_params")
     slam_params = LaunchConfiguration("slam_params")
     nav2_params = LaunchConfiguration("nav2_params")
@@ -93,7 +132,7 @@ def generate_launch_description():
     use_nav2 = LaunchConfiguration("use_nav2")
 
     # Log info
-    log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix])
+    log_info = LogInfo(msg=['Navigation bringup launching with namespace: ', namespace, ', prefix: ', prefix, ', local_costmap_plugins: ', local_costmap_plugins])
 
     # Use PushRosNamespace to apply the namespace to all nodes below
     push_namespace = PushRosNamespace(namespace=namespace)
@@ -128,6 +167,8 @@ def generate_launch_description():
             '<_NAMESPACE_>': _namespace_,
             '<PREFIX>': prefix,
             '<PREFIX_>': prefix_,
+            '<SCAN_TOPIC>': scan_topic,
+            '<POINTCLOUD_TOPIC>': pointcloud_topic,
         }
     )
 
@@ -140,6 +181,8 @@ def generate_launch_description():
             '<_NAMESPACE_>': _namespace_,
             '<PREFIX>': prefix,
             '<PREFIX_>': prefix_,
+            '<SCAN_TOPIC>': scan_topic,
+            '<POINTCLOUD_TOPIC>': pointcloud_topic,
         }
     )
 
@@ -152,6 +195,11 @@ def generate_launch_description():
             '<_NAMESPACE_>': _namespace_,
             '<PREFIX>': prefix,
             '<PREFIX_>': prefix_,
+            '<SCAN_TOPIC>': scan_topic,
+            '<POINTCLOUD_TOPIC>': pointcloud_topic,
+            '<ODOM_TOPIC>': odom_topic,
+            '<LOCAL_COSTMAP_PLUGINS>': local_costmap_plugins,
+            '<GLOBAL_COSTMAP_PLUGINS>': global_costmap_plugins,
         }
     )
 
@@ -232,6 +280,11 @@ def generate_launch_description():
             # Declare arguments
             declare_namespace_arg,
             declare_prefix_arg,
+            declare_scan_topic_arg,
+            declare_pointcloud_topic_arg,
+            declare_odom_topic_arg,
+            declare_local_costmap_plugins_arg,
+            declare_global_costmap_plugins_arg,
             declare_ekf_params_arg,
             declare_slam_params_arg,
             declare_nav2_params_arg,
