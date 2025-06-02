@@ -169,7 +169,7 @@ def generate_launch_description():
             remappings=[
                 ("/tf", "tf"),
                 ("/tf_static", "tf_static"),
-                ("/cmd_vel", "diff_cont/cmd_vel")
+                # ("/cmd_vel", "diff_cont/cmd_vel")
             ],
         ),
     ])
